@@ -1,0 +1,18 @@
+# Docker imajına dahil edilmeyecek dosyalar ve klasörler
+
+# Git dosyaları
+.git
+.gitignore
+
+# Docker dosyaları
+Dockerfile
+.dockerignore
+docker-compose.yml
+
+# Bağımlılıklar 
+node_modules
+
+# Next.js derleme çıktıları 
+.next
+
+# Yerel ortam değişkenleri dosyası

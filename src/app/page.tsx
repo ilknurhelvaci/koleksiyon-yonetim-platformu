@@ -1,103 +1,254 @@
+"use client";
+
+import { useState, FormEvent, useEffect } from "react";
+import { signIn, useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { useDispatch } from "react-redux";
+import { setAuthError, setAuthLoading } from "@/lib/redux/slices/authSlice";
+import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
 import Image from "next/image";
 
-export default function Home() {
-  return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+export default function LoginPage() {
+  const [email, setEmail] = useState("frontendtask@secilstore.com"); // Örnek kullanıcı
+  const [password, setPassword] = useState("123456"); // Örnek şifre
+  const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
+  const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
+  const router = useRouter();
+  const dispatch = useDispatch();
+  const { data: session, status } = useSession();
+
+  // Eğer kullanıcı zaten giriş yapmışsa, onu koleksiyonlar sayfasına yönlendir
+  useEffect(() => {
+    if (status === "authenticated") {
+      router.push("/collections");
+    }
+  }, [status, router]);
+
+  const handleSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    setError("");
+    setIsLoading(true);
+    dispatch(setAuthLoading());
+
+    try {
+      const result = await signIn("credentials", {
+        redirect: false,
+        username: email,
+        password: password,
+      });
+
+      if (result?.error) {
+        setError(result.error);
+        dispatch(setAuthError(result.error));
+      } else if (result?.ok) {
+      }
+    } catch (err) {
+      let errorMessage = "Beklenmedik bir hata oluştu.";
+      if (err instanceof Error) {
+        errorMessage = err.message;
+      }
+      setError(errorMessage);
+      dispatch(setAuthError(errorMessage));
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Eğer oturum kontrolü yapılıyorsa veya zaten giriş yapılmışsa, formu gösterme
+  if (status === "loading" || status === "authenticated") {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        Yönlendiriliyorsunuz...
+      </div>
+    );
+  }
+
+  return (
+    <main className="flex justify-center items-center  min-h-screen bg-white">
+      <div className=" flex justify-center items-center w-[792px] h-[867px] bg-white rounded-2xl  p-16 space-y-8 my-16 border border-[#9F9EA0] ">
+        {/* Başlık */}
+        <div className="w-[380px] h-[452px]   ">
+          <div className="flex items-center justify-center pt-8 pb-24">
             <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
+              src="/images/logo2.png"
+              alt="Logo"
+              width={146}
+              height={55}
+              priority
+              className="object-contain"
             />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+          </div>
+
+          {/* Form */}
+          <form className="space-y-6" onSubmit={handleSubmit}>
+            <div className="relative">
+              <input
+                id="email"
+                name="email"
+                type="email"
+                autoComplete="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="
+      peer
+      block w-full px-4 py-3 
+      text-gray-900 bg-white 
+      border border-[#BDBDBD] rounded-lg 
+      focus:ring-[#000000] focus:border-[#000000]
+      transition
+      placeholder-transparent 
+      focus:outline-none
+    "
+                placeholder="ornek@email.com"
+              />
+              <label
+                htmlFor="email"
+                className="
+                
+      absolute 
+      left-4 
+      top-3.5 
+   bg-gray-50
+      text-gray-500 
+      transition-all 
+      duration-200 
+      ease-in-out
+      pointer-events-none 
+      peer-placeholder-shown:text-base 
+      peer-placeholder-shown:bg-gray-50 
+      peer-placeholder-shown:top-3.5
+      peer-focus:text-[11.7px]
+      peer-focus:-top-2.5 
+      peer-focus:left-3
+      peer-focus:text-[#000000]
+      peer-focus:bg-gray-50
+      peer-focus:px-1
+      
+   
+      peer-[&:not(:placeholder-shown)]:text-sm
+      peer-[&:not(:placeholder-shown)]:-top-2.5
+      peer-[&:not(:placeholder-shown)]:left-3
+
+      peer-[&:not(:placeholder-shown)]:px-1
+    "
+              >
+                E-Posta
+              </label>
+            </div>
+
+            <div className="relative">
+              <input
+                id="password"
+                name="password"
+                // 2. Input tipini state'e göre dinamik hale getir
+                type={showPassword ? "text" : "password"}
+                autoComplete="current-password"
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="
+          peer
+          block w-full 
+          
+          px-4 py-3 pr-12 /* <-- 3. İkon için sağda boşluk bırak */
+          text-gray-900 bg-white 
+          border border-[#BDBDBD] rounded-lg 
+          focus:ring-[#000000] focus:border-[#000000]
+          transition
+          placeholder-transparent 
+          focus:outline-none
+        "
+                placeholder="••••••••"
+              />
+              <label
+                htmlFor="password"
+                className="
+                
+      absolute 
+      left-4 
+      top-3.5 
+   bg-gray-50
+      text-gray-500 
+      transition-all 
+      duration-200 
+      ease-in-out
+      pointer-events-none 
+      peer-placeholder-shown:text-base 
+      peer-placeholder-shown:bg-gray-50 
+      peer-placeholder-shown:top-3.5
+      peer-focus:text-[11.7px]
+      peer-focus:-top-2.5 
+      peer-focus:left-3
+      peer-focus:text-[#000000]
+      peer-focus:bg-gray-50
+      peer-focus:px-1
+      
+   
+      peer-[&:not(:placeholder-shown)]:text-sm
+      peer-[&:not(:placeholder-shown)]:-top-2.5
+      peer-[&:not(:placeholder-shown)]:left-3
+
+      peer-[&:not(:placeholder-shown)]:px-1
+    "
+              >
+                Şifre
+              </label>
+
+              <div
+                className="absolute inset-y-0 right-0 flex items-center pr-4 cursor-pointer"
+                onClick={() => setShowPassword(!showPassword)}
+              >
+                {showPassword ? (
+                  <EyeSlashIcon className="h-6 w-6 text-gray-500" />
+                ) : (
+                  <EyeIcon className="h-6 w-6 text-gray-500" />
+                )}
+              </div>
+            </div>
+            <div className="flex items-center mt-4">
+              <input
+                id="remember-me"
+                name="remember-me"
+                type="checkbox"
+                checked={rememberMe}
+                onChange={(e) => setRememberMe(e.target.checked)}
+                className="
+  h-4 w-4 rounded cursor-pointer 
+  border-gray-400 text-gray-700 
+  focus:ring-gray-600
+  checked:bg-gray-300 checked:text-black
+"
+              />
+              <label
+                htmlFor="remember-me"
+                className="ml-2 block text-[12.8px] text-gray-900 cursor-pointer"
+              >
+                Beni hatırla
+              </label>
+            </div>
+
+            {error && (
+              <div className="p-3 text-sm text-red-800 bg-red-100 border border-red-200 rounded-lg">
+                {error}
+              </div>
+            )}
+
+            <div>
+              <button
+                type="submit"
+                disabled={isLoading}
+                className="w-full px-5 py-3 text-base  text-white bg-[#000000] font-bold text-[12.8px] rounded-lg hover:bg-[#000000] focus:outline-none focus:ring-4  transition-all w-[380px] h-[56px]"
+              >
+                {isLoading ? "Giriş Yapılıyor..." : "Giriş Yap"}
+              </button>
+            </div>
+          </form>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+      </div>
+    </main>
   );
 }
