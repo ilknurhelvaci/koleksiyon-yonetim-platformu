@@ -13,7 +13,7 @@ RUN npm install
 
 COPY . .
 
-COPY .env.local .env.local
+
 
 RUN npm run build
 

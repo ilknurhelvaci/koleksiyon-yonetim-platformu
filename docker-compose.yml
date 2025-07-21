@@ -1,24 +1,16 @@
-# Docker Compose dosya formatının sürümünü belirtir.
 version: "3.8"
 
-# Çalıştırılacak servisleri (konteynerleri) tanımlar.
 services:
-  # Servise "next-app" adını veriyoruz. İstediğiniz ismi verebilirsiniz.
   next-app:
-    # Bu servis için kullanılacak Docker imajının nasıl oluşturulacağını belirtir.
-    # context: .  -> Dockerfile dosyasının bulunduğu dizini (proje kök dizini) gösterir.
     build:
       context: .
       dockerfile: Dockerfile
-    # Konteyner her yeniden başlatıldığında otomatik olarak çalışmasını sağlar.
+
     restart: always
-    # Port yönlendirmesi:
-    # "3000:3000" -> Bilgisayarınızın (host) 3000 portuna gelen istekleri,
-    #                konteynerin 3000 portuna yönlendirir.
+
     ports:
       - "3000:3000"
-    # Konteyner içindeki ortam değişkenlerini (environment variables) belirler.
-    # NextAuth.js için bu değişkenler önemlidir.
+
     environment:
       - NEXT_PUBLIC_API_BASE_URL=https://maestro-api-dev.secil.biz
       - NEXTAUTH_URL=http://localhost:3000
