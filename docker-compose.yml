@@ -12,7 +12,7 @@ services:
       - "3000:3000"
 
     environment:
-      - NEXT_PUBLIC_API_BASE_URL=https://maestro-api-dev.secil.biz
-      - NEXTAUTH_URL=http://localhost:3000
-      - NEXTAUTH_SECRET=37XuG7VCnK4vHNgh87MZ1YOG6wrbA1VMMfrGs6DCGzY=
-      - API_SECRET_TOKEN=YOUR_SECRET_TOKEN
+      - NEXT_PUBLIC_API_BASE_URL=${NEXT_PUBLIC_API_BASE_URL}
+      - NEXTAUTH_URL=${NEXTAUTH_URL}
+      - NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
+      - API_SECRET_TOKEN=${API_SECRET_TOKEN}
